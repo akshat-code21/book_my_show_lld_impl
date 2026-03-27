@@ -26,7 +26,7 @@ public class BookingService {
         this.pricing = pricing;
     }
 
-    MovieTicket bookTicket(String showId, List<ShowSeat> seats) {
+    public MovieTicket bookTicket(String showId, List<ShowSeat> seats, User user) {
         for (ShowSeat ss : seats) {
             if (ss.getStatus() != SeatStatus.VACANT) {
                 throw new RuntimeException("Seat " + ss.getSeat().getId() + " is not available");
@@ -36,14 +36,14 @@ public class BookingService {
 
         for (ShowSeat ss : seats) {
             int price = pricing.calculatePrice(ss);
-            ss.setPrice(price);  // store computed price on ShowSeat
+            ss.setPrice(price);
         }
 
         int totalPrice = seats.stream().mapToInt(ShowSeat::getPrice).sum();
 
         MovieTicket ticket = new MovieTicket(
                 UUID.randomUUID().toString(), seats,
-                seats.get(0).getShow(), null, totalPrice, BookingStatus.PENDING
+                seats.get(0).getShow(), user, totalPrice, BookingStatus.PENDING
         );
 
         try {
@@ -54,7 +54,7 @@ public class BookingService {
             ticket.setBookingStatus(BookingStatus.CONFIRMED);
         } catch (Exception e) {
             for (ShowSeat ss : seats) {
-                ss.setStatus(SeatStatus.VACANT);  // rollback
+                ss.setStatus(SeatStatus.VACANT);
             }
             ticket.setBookingStatus(BookingStatus.FAILED);
         }
