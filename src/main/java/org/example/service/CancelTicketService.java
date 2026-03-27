@@ -6,7 +6,7 @@ import org.example.enums.BookingStatus;
 import org.example.enums.SeatStatus;
 
 public class CancelTicketService {
-    private RefundService rs;
+    private final RefundService rs;
 
     public CancelTicketService(RefundService rs) {
         this.rs = rs;
