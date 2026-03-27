@@ -3,6 +3,7 @@ package org.example.service;
 import org.example.entity.*;
 import org.example.enums.BookingStatus;
 import org.example.enums.SeatStatus;
+import org.example.payment.PaymentGateway;
 import org.example.repository.MovieRepository;
 import org.example.repository.ShowRepository;
 import org.example.repository.TheatreRepository;
@@ -13,11 +14,16 @@ import java.util.UUID;
 public class BookingService {
     private final TheatreRepository tr;
     private final MovieRepository mr;
-    private ShowRepository sr;
+    private final ShowRepository sr;
+    private final PaymentGateway paymentGateway;      // inject this
+    private final PricingCalculatorService pricing;   // inject this
 
-    public BookingService(TheatreRepository tr, MovieRepository mr) {
+    public BookingService(TheatreRepository tr, MovieRepository mr, ShowRepository sr, PaymentGateway paymentGateway, PricingCalculatorService pricing) {
         this.tr = tr;
         this.mr = mr;
+        this.sr = sr;
+        this.paymentGateway = paymentGateway;
+        this.pricing = pricing;
     }
 
     MovieTicket bookTicket(String showId, List<ShowSeat> seats) {
@@ -28,21 +34,31 @@ public class BookingService {
             ss.setStatus(SeatStatus.IN_PROGRESS);
         }
 
-        int totalPrice = seats.stream()
-                .mapToInt(ShowSeat::getPrice)
-                .sum();
+        for (ShowSeat ss : seats) {
+            int price = pricing.calculatePrice(ss);
+            ss.setPrice(price);  // store computed price on ShowSeat
+        }
+
+        int totalPrice = seats.stream().mapToInt(ShowSeat::getPrice).sum();
 
         MovieTicket ticket = new MovieTicket(
                 UUID.randomUUID().toString(), seats,
                 seats.get(0).getShow(), null, totalPrice, BookingStatus.PENDING
         );
 
-        // process payment (payment gateway call)
-
-        for (ShowSeat ss : seats) {
-            ss.setStatus(SeatStatus.BOOKED);
+        try {
+            paymentGateway.processPayment(totalPrice);
+            for (ShowSeat ss : seats) {
+                ss.setStatus(SeatStatus.BOOKED);
+            }
+            ticket.setBookingStatus(BookingStatus.CONFIRMED);
+        } catch (Exception e) {
+            for (ShowSeat ss : seats) {
+                ss.setStatus(SeatStatus.VACANT);  // rollback
+            }
+            ticket.setBookingStatus(BookingStatus.FAILED);
         }
-        ticket.setBookingStatus(BookingStatus.CONFIRMED);
+
 
         return ticket;
     }
