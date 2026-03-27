@@ -46,4 +46,8 @@ public class Screen {
     public void setSeats(List<Seat> seats) {
         this.seats = seats;
     }
+
+    public void addShow(Show s){
+        this.shows.add(s);
+    }
 }

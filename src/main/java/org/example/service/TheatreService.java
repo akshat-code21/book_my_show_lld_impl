@@ -5,16 +5,13 @@ import org.example.entity.Theatre;
 import org.example.repository.TheatreRepository;
 
 public class TheatreService {
-    private City c;
     private TheatreRepository tr;
 
-    public TheatreService(City c, TheatreRepository tr) {
-        this.c = c;
+    public TheatreService(TheatreRepository tr) {
         this.tr = tr;
     }
 
-    public void addTheatre(){
-        Theatre t = new Theatre();
+    public void addTheatre(City c,Theatre t){
         tr.addTheatreToRepo(c,t);
     }
 }

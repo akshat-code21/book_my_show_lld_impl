@@ -1,34 +1,20 @@
 package org.example.service;
 
-import org.example.entity.Movie;
-import org.example.entity.Theatre;
+import org.example.entity.*;
+import org.example.enums.SeatStatus;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class MovieShowService {
-    private Movie m;
-    private Theatre t;
-
-    public MovieShowService(Movie m, Theatre t) {
-        this.m = m;
-        this.t = t;
-    }
-
-    public Movie getMovie() {
-        return m;
-    }
-
-    public void setMovie(Movie m) {
-        this.m = m;
-    }
-
-    public Theatre getTheatre() {
-        return t;
-    }
-
-    public void setTheatre(Theatre t) {
-        this.t = t;
-    }
-
-    public void addMovieShow(){
-        
+    public void addMovieShow(Movie m, Theatre t, Screen screen, LocalDateTime showTime){
+        List<ShowSeat> showSeats = new ArrayList<>();
+        for (Seat seat : screen.getSeats()) {
+            showSeats.add(new ShowSeat(null, seat, 0, SeatStatus.VACANT));
+        }
+        Show show = new Show(UUID.randomUUID().toString(), showTime, m, showSeats, screen);
+        screen.addShow(show);
     }
 }

@@ -9,11 +9,11 @@ import java.util.Map;
 public class DefaultPricingStrategy implements PricingStrategy{
     private Map<SeatType,Integer> basePriceMap;
 
-    public DefaultPricingStrategy(Map<SeatType, Integer> basePriceMap) {
-        basePriceMap = new HashMap<>();
-        basePriceMap.put(SeatType.BASIC, 150);
-        basePriceMap.put(SeatType.GOLD, 300);
-        basePriceMap.put(SeatType.DIAMOND, 500);
+    public DefaultPricingStrategy() {
+        this.basePriceMap = new HashMap<>();
+        this.basePriceMap.put(SeatType.BASIC, 150);
+        this.basePriceMap.put(SeatType.GOLD, 300);
+        this.basePriceMap.put(SeatType.DIAMOND, 500);
     }
 
     public Map<SeatType, Integer> getBasePriceMap() {

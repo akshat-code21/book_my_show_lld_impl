@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TheatreRepository {
-    private static Map<City, List<Theatre>> cityToTheatreMapping;
+    private Map<City, List<Theatre>> cityToTheatreMapping;
 
     public TheatreRepository(Map<City, List<Theatre>> cityToTheatreMapping) {
         this.cityToTheatreMapping = cityToTheatreMapping;
