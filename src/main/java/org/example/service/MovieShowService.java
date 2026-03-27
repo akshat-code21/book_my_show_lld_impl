@@ -17,6 +17,12 @@ public class MovieShowService {
     }
 
     public void addMovieShow(Movie m, Theatre t, Screen screen, LocalDateTime showTime) {
+        for (Show existing : screen.getShows()) {
+            if (existing.getShowTime().equals(showTime)) {
+                throw new RuntimeException("Screen " + screen.getScreenName()
+                        + " already has a show at " + showTime);
+            }
+        }
         List<ShowSeat> showSeats = new ArrayList<>();
         for (Seat seat : screen.getSeats()) {
             showSeats.add(new ShowSeat(null, seat, 0, SeatStatus.VACANT));

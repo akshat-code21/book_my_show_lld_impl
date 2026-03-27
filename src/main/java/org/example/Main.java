@@ -32,9 +32,11 @@ public class Main {
         Screen screen = new Screen("sc1", "Screen 1", new ArrayList<>(), List.of(s1, s2));
         Theatre theatre = new Theatre("t1", bangalore, List.of(screen));
 
-        admin.addMovie(bangalore, movie);
-        admin.addTheatre(bangalore, theatre);
-        admin.addMovieShow(movie, theatre, screen, LocalDateTime.now().plusDays(1));
+        User adminUser = new User("a1",UserRole.ADMIN);
+
+        admin.addMovie(bangalore, movie,adminUser);
+        admin.addTheatre(bangalore, theatre,adminUser);
+        admin.addMovieShow(movie, theatre, screen, LocalDateTime.now().plusDays(1),adminUser);
 
         PricingCalculatorService pricing = new PricingCalculatorService(
                 List.of(new DefaultPricingStrategy())

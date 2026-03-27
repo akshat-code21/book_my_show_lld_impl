@@ -13,6 +13,12 @@ public class CancelTicketService {
     }
 
     public void cancel(MovieTicket mt){
+        if (mt.getBookingStatus() == BookingStatus.CANCELLED) {
+            throw new RuntimeException("Ticket is already cancelled");
+        }
+        if (mt.getBookingStatus() != BookingStatus.CONFIRMED) {
+            throw new RuntimeException("Only confirmed tickets can be cancelled");
+        }
         for (ShowSeat ss : mt.getSelectedSeats()) {
             ss.setStatus(SeatStatus.VACANT);
         }

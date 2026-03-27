@@ -8,8 +8,11 @@ import org.example.repository.MovieRepository;
 import org.example.repository.ShowRepository;
 import org.example.repository.TheatreRepository;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BookingService {
     private final TheatreRepository tr;
@@ -27,11 +30,26 @@ public class BookingService {
     }
 
     public MovieTicket bookTicket(String showId, List<ShowSeat> seats, User user) {
-        for (ShowSeat ss : seats) {
-            if (ss.getStatus() != SeatStatus.VACANT) {
-                throw new RuntimeException("Seat " + ss.getSeat().getId() + " is not available");
+        Show show = sr.getShow(showId);
+        if (show.getShowTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Cannot book ticket for a past show");
+        }
+
+        if (seats == null || seats.isEmpty()) {
+            throw new RuntimeException("No seats selected");
+        }
+
+        List<ShowSeat> sortedSeats = seats.stream()
+                .sorted(Comparator.comparing(ss -> ss.getSeat().getId()))
+                .toList();
+
+        for (ShowSeat ss : sortedSeats) {
+            synchronized (ss) {
+                if (ss.getStatus() != SeatStatus.VACANT) {
+                    throw new RuntimeException("Seat " + ss.getSeat().getId() + " is not available");
+                }
+                ss.setStatus(SeatStatus.IN_PROGRESS);
             }
-            ss.setStatus(SeatStatus.IN_PROGRESS);
         }
 
         for (ShowSeat ss : seats) {
@@ -43,7 +61,7 @@ public class BookingService {
 
         MovieTicket ticket = new MovieTicket(
                 UUID.randomUUID().toString(), seats,
-                seats.get(0).getShow(), user, totalPrice, BookingStatus.PENDING
+                sr.getShow(showId), user, totalPrice, BookingStatus.PENDING
         );
 
         try {
@@ -63,15 +81,15 @@ public class BookingService {
         return ticket;
     }
 
-    List<Theatre> showTheatres(City c){
+    List<Theatre> showTheatres(City c) {
         return tr.getTheatres(c);
     }
 
-    List<Movie> showMovies(City c){
+    List<Movie> showMovies(City c) {
         return mr.getMovies(c);
     }
 
-    public List<ShowSeat> showSeatMap(String showId){
+    public List<ShowSeat> showSeatMap(String showId) {
         return sr.getShow(showId).getSeats();
     }
 }
