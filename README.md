@@ -63,7 +63,7 @@ src/main/java/org/example/
 
 1. Clone the repository:
 ```bash
-git clone <repo-url>
+git clone https://github.com/akshat-code21/book_my_show_lld_impl
 cd bms-lld
 ```
 
