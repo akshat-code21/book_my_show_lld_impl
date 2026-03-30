@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.entity.MovieTicket;
 import org.example.entity.ShowSeat;
 import org.example.strategy.PricingStrategy;
 

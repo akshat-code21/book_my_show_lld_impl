@@ -18,8 +18,8 @@ public class BookingService {
     private final TheatreRepository tr;
     private final MovieRepository mr;
     private final ShowRepository sr;
-    private final PaymentGateway paymentGateway;      // inject this
-    private final PricingCalculatorService pricing;   // inject this
+    private final PaymentGateway paymentGateway;
+    private final PricingCalculatorService pricing;
 
     public BookingService(TheatreRepository tr, MovieRepository mr, ShowRepository sr, PaymentGateway paymentGateway, PricingCalculatorService pricing) {
         this.tr = tr;
