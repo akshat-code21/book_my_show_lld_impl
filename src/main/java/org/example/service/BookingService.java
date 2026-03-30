@@ -9,10 +9,10 @@ import org.example.repository.ShowRepository;
 import org.example.repository.TheatreRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class BookingService {
     private final TheatreRepository tr;
@@ -43,14 +43,24 @@ public class BookingService {
                 .sorted(Comparator.comparing(ss -> ss.getSeat().getId()))
                 .toList();
 
-        for (ShowSeat ss : sortedSeats) {
-            synchronized (ss) {
-                if (ss.getStatus() != SeatStatus.VACANT) {
-                    throw new RuntimeException("Seat " + ss.getSeat().getId() + " is not available");
+        List<ShowSeat> lockedSeats = new ArrayList<>();
+        try {
+            for (ShowSeat ss : sortedSeats) {
+                synchronized (ss) {
+                    if (ss.getStatus() != SeatStatus.VACANT) {
+                        throw new RuntimeException("Seat " + ss.getSeat().getId() + " is not available");
+                    }
+                    ss.setStatus(SeatStatus.IN_PROGRESS);
+                    lockedSeats.add(ss);
                 }
-                ss.setStatus(SeatStatus.IN_PROGRESS);
             }
+        } catch (RuntimeException e) {
+            for (ShowSeat ss : lockedSeats) {
+                ss.setStatus(SeatStatus.VACANT);
+            }
+            throw e;
         }
+
 
         for (ShowSeat ss : seats) {
             int price = pricing.calculatePrice(ss);
